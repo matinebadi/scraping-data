@@ -1,180 +1,138 @@
 
 
-Product Information Scraper and Database API
+ETL Phone Product Scraper & Database API
 
-This project provides an API that scrapes product data from an e-commerce website and stores it in a PostgreSQL database. Users can interact with the data through a set of endpoints to add, update, delete, and view product details. The project uses FastAPI for building the API, psycopg2 for database interaction, and BeautifulSoup for web scraping.
+This project is a Python-based web scraper and API service designed to extract product details from an e-commerce website and store them in a PostgreSQL database. Built using FastAPI for the web server, BeautifulSoup for scraping, and psycopg2 for interacting with the PostgreSQL database, this tool simplifies the process of extracting, updating, and managing product data.
 
 Features
 
-Add New Products: Allows adding new product data to the database.
+Add Product: Insert new products into the database.
 
-Update Product Information: Updates existing product information.
+Refresh Data: Automatically refresh the product data by scraping the latest information from the target website.
 
-Delete Products: Deletes a product from the database by its name.
+Update Product: Update the details of an existing product.
 
-Show All Products: Retrieves and displays all stored product information.
+Delete Product: Remove a product from the database.
 
-Automated Scraping: Automatically scrapes product data from an external website and populates the database.
+Show All Products: Retrieve and display a list of all products in the database.
 
 
 Requirements
 
 Python 3.7+
 
-PostgreSQL
+PostgreSQL Database
 
 FastAPI
 
-Uvicorn (ASGI server)
+Uvicorn (for running the server)
 
-BeautifulSoup
+psycopg2 (for PostgreSQL integration)
 
-psycopg2
-
-Requests
+BeautifulSoup (for scraping)
 
 
 Installation
 
-1. Clone the repository:
+1. Clone this repository:
 
-git clone https://github.com/yourusername/product-scraper-api.git
-cd product-scraper-api
+git clone https://github.com/your-username/etl-phone-scraper.git
+cd etl-phone-scraper
 
 
-2. Install the required dependencies:
+2. Install dependencies:
 
 pip install -r requirements.txt
 
 
-3. Set up PostgreSQL:
+3. Set up the PostgreSQL database:
 
-Install PostgreSQL if it's not installed.
+Create a database named etlphone.
 
-Create a database called etlphone and a table users to store product data with the following schema:
-
-
-CREATE TABLE users (
-    name VARCHAR(255),
-    link TEXT,
-    price DECIMAL,
-    category VARCHAR(255)
-);
-
-
-4. Configure your PostgreSQL credentials:
-
-Edit the postgres.py file and replace the user, password, host, and database values with your PostgreSQL connection details.
+Make sure the table users exists with columns: name, link, price, category.
 
 
 
+4. Configure database connection in the script (adjust username, password, and host as needed):
 
-Usage
+connected = psycopg2.connect(user='postgres', password='yourpassword', host="localhost", port=5432, database="etlphone")
 
-1. Run the API:
 
-Start the FastAPI application using uvicorn:
+
+Running the API
+
+To start the FastAPI server, run the following command:
 
 uvicorn main:app --reload
 
-This will run the API locally on http://127.0.0.1:8000.
+The server will start on http://127.0.0.1:8000. You can now use the following endpoints.
 
+API Endpoints
 
-2. API Endpoints:
+1. Add Product
 
-POST /add/: Add a new product to the database.
-
-Parameters: name, link, price, category
-
-Example:
+POST /add/
+Adds a new product to the database.
 
 {
     "name": "Product Name",
-    "link": "https://product-link.com",
-    "price": "100.00",
+    "link": "http://product-link.com",
+    "price": "299.99",
     "category": "Electronics"
 }
 
+2. Refresh Data
 
-POST /refresh/: Automatically scrape and add product data from the website.
+POST /refresh/
+Scrapes the latest product data and inserts it into the database.
 
-This will fetch product details from the specified website and store them in the database.
+3. Update Product
 
-
-PUT /update/{item_name}: Update product information.
-
-Parameters: name (existing product name), obj (field to update), newobj (new value for the field)
-
-Example:
+PUT /update/{item_name}
+Updates a product's name or price in the database.
 
 {
-    "name": "Product Name",
-    "obj": "price",
-    "newobj": "120.00"
+    "name": "Updated Product Name",
+    "price": "249.99"
 }
 
+4. Delete Product
 
-DELETE /delete/: Delete a product by name.
+DELETE /delete/
+Deletes a product from the database based on the product's name.
 
-Parameters: item_name (name of the product to delete)
+{
+    "item_name": "Product Name"
+}
 
+5. Show All Products
 
-GET /show/: View all products in the database.
+GET /show/
+Returns a list of all products stored in the database.
 
+[
+    {
+        "name": "Product Name",
+        "link": "http://product-link.com",
+        "price": "299.99",
+        "category": "Electronics"
+    },
+    ...
+]
 
+How It Works
 
-
-Code Breakdown
-
-1. FastAPI Application (main.py):
-
-The FastAPI application defines several endpoints that interact with the database and the web scraper functions.
-
-Uses POST for adding and refreshing products, PUT for updating, and DELETE for removing products.
-
-
-
-2. Database Interaction (postgres.py):
-
-The file contains functions for adding, updating, deleting, and showing products in the PostgreSQL database using psycopg2.
-
-SQL queries are executed to modify and retrieve product data.
-
-
-
-3. Web Scraping (scrap.py):
-
-The GetUrls function scrapes product URLs from the specified e-commerce website.
-
-The GetDatas function scrapes detailed product information, including name, price, category, description, and availability.
-
-All product data is collected and returned as a list of dictionaries.
+1. Scraping: The GetDatas function scrapes product data from a predefined e-commerce website using BeautifulSoup. It collects information such as the product name, price, category, and description.
 
 
+2. Database Interaction: The psycopg2 library is used to interact with a PostgreSQL database, allowing you to insert, update, delete, and display product data.
 
 
-Example Flow
-
-1. The user hits the POST /refresh/ endpoint.
-
-
-2. The web scraper fetches product data from the external website.
-
-
-3. The data is added to the PostgreSQL database via the Add function.
-
-
-4. The user can query, update, or delete products through the corresponding API endpoints.
+3. FastAPI: The API is built with FastAPI, providing a modern and efficient way to expose the product data to clients. Uvicorn serves the FastAPI app.
 
 
 
 Contributing
 
-If you'd like to contribute to this project, feel free to fork the repository, make changes, and create a pull request.
-
-License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-
+Contributions are welcome! If you'd like to improve or extend the project, feel free to submit a pull request.
 
